@@ -5,7 +5,7 @@ use std::collections::LinkedList;
 
 use crate::draw::draw_block;
 
-const SNAKE_COLOR: Color = [0.00, 0.80, 0.00, 1.0]; // [R, G, B, Opacity]
+const SNAKE_COLOR: Color = [0.80, 0.35, 0.10, 1.0]; // [R, G, B, Opacity]
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Direction {
@@ -68,26 +68,8 @@ impl Snake {
       None => (),
     }
 
-    let (last_x, last_y) = self.head_position();
-
-    let new_block = match self.direction {
-      Direction::Up => Block {
-        x: last_x,
-        y: last_y - 1,
-      },
-      Direction::Down => Block {
-        x: last_x,
-        y: last_y + 1,
-      },
-      Direction::Left => Block {
-        x: last_x - 1,
-        y: last_y,
-      },
-      Direction::Right => Block {
-        x: last_x + 1,
-        y: last_y - 1,
-      },
-    };
+    let (new_x, new_y) = self.next_head(None);
+    let new_block = Block { x: new_x, y: new_y };
     self.body.push_front(new_block);
     let removed_block = self.body.pop_back().unwrap();
     self.tail = Some(removed_block);
@@ -109,7 +91,7 @@ impl Snake {
       Direction::Up => (head_x, head_y - 1),
       Direction::Down => (head_x, head_y + 1),
       Direction::Left => (head_x - 1, head_y),
-      Direction::Right => (head_x + 1, head_y - 1),
+      Direction::Right => (head_x + 1, head_y),
     }
   }
 
@@ -130,5 +112,9 @@ impl Snake {
       }
     }
     return false;
+  }
+
+  pub fn overlaps_body(&self, x: i32, y: i32) -> bool {
+    self.body.iter().any(|block| block.x == x && block.y == y)
   }
 }

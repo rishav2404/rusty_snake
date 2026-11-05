@@ -2,7 +2,7 @@ use piston_window::*;
 use piston_window::graphics::types::Color;
 use piston_window::graphics::{Context, Graphics};
 
-use rand::{Rng, RngExt, rng};
+use rand::{RngExt, rng};
 
 use crate::draw::{draw_block, draw_rectangle};
 use crate::snake::{Direction, Snake};
@@ -11,7 +11,7 @@ const FOOD_COLOR: Color = [0.80, 0.00, 0.00, 1.0];
 const BORDER_COLOR: Color = [0.00, 0.00, 0.00, 1.0];
 const GAMEOVER_COLOR: Color = [0.90, 0.00, 0.00, 0.5];
 
-const MOVING_PERIOD: f64 = 0.1;
+const MOVING_PERIOD: f64 = 0.2;
 const RESTRAT_TIME: f64 = 1.0;
 
 pub struct Game {
@@ -115,17 +115,20 @@ impl Game {
 
   fn add_food(&mut self) {
     let mut rng = rng();
+    let available_cells: Vec<_> = (1..(self.width - 1))
+      .flat_map(|x| (1..(self.height - 1)).map(move |y| (x, y)))
+      .filter(|&(x, y)| !self.snake.overlaps_body(x, y))
+      .collect();
 
-    let mut new_x = rng.random_range(1..=self.width - 1);
-    let mut new_y = rng.random_range(1..=self.height - 1);
-
-    while self.snake.overlap_tail(new_x, new_y) {
-      new_x = rng.random_range(1..=self.width - 1);
-      new_y = rng.random_range(1..=self.height - 1);
+    if available_cells.is_empty() {
+      self.food_exists = false;
+      return;
     }
 
-    self.food_x = new_x;
-    self.food_y = new_y;
+    let (x, y) = available_cells[rng.random_range(0..available_cells.len())];
+
+    self.food_x = x;
+    self.food_y = y;
     self.food_exists = true;
   }
 
