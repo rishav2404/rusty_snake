@@ -1,5 +1,5 @@
+use piston_window::graphics::clear;
 use piston_window::graphics::types::Color;
-use piston_window::graphics::{Context, Graphics, clear};
 use piston_window::*;
 
 mod draw;
